@@ -1,37 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
-  WebViewController webViewController = WebViewController()
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+ class _HomeScreenState extends State<HomeScreen> {
 
-  ..loadRequest(Uri.parse('https://blog.codefactory.ai'))
+  final PageController pageController = PageController();
 
-  ..setJavaScriptMode(JavaScriptMode.unrestricted);
+  @override
+  void initState() {
+    super.initState();
 
-  HomeScreen({Key? key}) : super(key: key);
+    Timer.periodic(Duration(seconds: 3),
+            (timer) {
+      int? nextPage = pageController.page?.toInt();
+
+      if (nextPage == null) {
+        return;
+      }
+
+      if (nextPage == 4) {
+        nextPage = 0;
+      } else {
+        nextPage++;
+      }
+      pageController.animateToPage(
+          nextPage,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.ease,
+      );
+            },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.orange,
-        title: Text('Code Factory'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () {
-                webViewController.loadRequest(Uri.parse('https://blog.codefactory.ai'));
-              },
-              icon: Icon(
-                Icons.home,
-              ),
-          ),
-        ],
-      ),
-      body: WebViewWidget(
-        controller: webViewController,
-      ),
-    );
+
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+
+  return Scaffold(
+  body: PageView(
+    controller: pageController,
+  children: [1, 2, 3, 4, 5]
+      .map(
+  (number) => Image.asset(
+  'asset/img/image_$number.jpeg',
+  fit: BoxFit.cover,
+  ),
+  )
+      .toList(),
+  ),
+  );
   }
-}
+  }
